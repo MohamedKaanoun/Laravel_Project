@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<x-layout>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,21 +18,33 @@
     <script>
         function initMap() {
             // Récupérer les données des étudiants passées par le contrôleur
-            const locations = @json($etudiants);
+            const locations = @json($contenu);
+            console.log('Locations:', locations);
 
-            // Créer une nouvelle carte centrée sur une position par défaut s'il n'y a pas de données
+            // Vérifier que locations n'est pas vide et que les premières coordonnées sont valides
+            let initialCenter = { lat: 0, lng: 0 };
+            if (locations.length && !isNaN(locations[0].latitude) && !isNaN(locations[0].longitude)) {
+                initialCenter = { lat: parseFloat(locations[0].latitude), lng: parseFloat(locations[0].longitude) };
+            }
+
+            // Créer une nouvelle carte centrée sur une position par défaut s'il n'y a pas de données valides
             const map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 4,
-                center: locations.length ? { lat: locations[0].latitude, lng: locations[0].longitude } : { lat: 0, lng: 0 },
+                center: initialCenter,
             });
 
-            // Ajouter des marqueurs pour chaque étudiant
+            // Ajouter des marqueurs pour chaque étudiant après validation
             locations.forEach((location) => {
-                new google.maps.Marker({
-                    position: { lat: location.latitude, lng: location.longitude },
-                    map,
-                    title: `${location.nom} ${location.prenom}`,
-                });
+                if (!isNaN(location.latitude) && !isNaN(location.longitude)) {
+                    console.log(`Adding marker for ${location.nom} ${location.prenom} at (${location.latitude}, ${location.longitude})`);
+                    new google.maps.Marker({
+                        position: { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) },
+                        map,
+                        title: `${location.nom} ${location.prenom}`,
+                    });
+                } else {
+                    console.warn(`Invalid location for ${location.nom} ${location.prenom}:`, location);
+                }
             });
 
             // Optionnel: Centrer la carte en fonction de la localisation de l'utilisateur, si disponible
@@ -47,11 +60,6 @@
                         map.setCenter(userLocation);
 
                         // Ajouter un marqueur pour la localisation de l'utilisateur
-                        new google.maps.Marker({
-                            position: userLocation,
-                            map,
-                            title: 'Your Location',
-                        });
                     },
                     () => {
                         // Gérer les erreurs de géolocalisation
@@ -68,12 +76,15 @@
             const infoWindow = new google.maps.InfoWindow({
                 position: pos,
                 content: browserHasGeolocation
-                    ? 'Error: The Geolocation service failed.'
-                    : "Error: Your browser doesn't support geolocation.",
+                    ? 'Erreur: Le service de géolocalisation a échoué.'
+                    : "Erreur: Votre navigateur ne supporte pas la géolocalisation.",
             });
             infoWindow.open(map);
         }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqcwOajVxQCL8L2nF6cDr2peme5XdXSoU&callback=initMap"
+            async defer></script>
 </body>
 </html>
+
+</x-layout>

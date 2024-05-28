@@ -37,42 +37,28 @@ public function enregistrer(Request $request)
 
         // Ajouter les données au fichier
         Storage::append('master_rsi2020.txt', $donnees);
-
-        return redirect()->route('listFichier');
-    }
-
-public function showMap()
-{
-    $etudiants = [];
+        $contenu = [];
 
     if (Storage::exists('master_rsi2020.txt')) {
         $contenuFichier = Storage::get('master_rsi2020.txt');
-            $lignes = explode("\n", trim($contenuFichier));
+        $lignes = explode("\n", trim($contenuFichier));
 
-            foreach ($lignes as $ligne) {
-                if (!empty($ligne)) {
-                    list($nom, $prenom, $cne, $note1, $note2, $note3, $latitude, $longitude) = sscanf($ligne, "Nom: %[^,], Prenom: %[^,], CNE: %[^,], Note1: %d, Note2: %d, Note3: %d, Latitude: %f, Longitude: %f");
-                    $etudiants[] = [
-                        'nom' => $nom,
-                        'prenom' => $prenom,
-                        'cne' => $cne,
-                        'note_module_1' => $note1,
-                        'note_module_2' => $note2,
-                        'note_module_3' => $note3,
-                        'latitude' => $latitude,
-                        'longitude' => $longitude,
-                    ];
-                }
+        foreach ($lignes as $ligne) {
+            if (!empty($ligne)) {
+                list($nom, $prenom, $cne, $note1, $note2, $note3) = sscanf($ligne, "Nom: %[^,], Prenom: %[^,], CNE: %[^,], Note1: %d, Note2: %d, Note3: %d");
+                $contenu[] = [
+                    'nom' => $nom,
+                    'prenom' => $prenom,
+                    'cne' => $cne,
+                    'note_module_1' => $note1,
+                    'note_module_2' => $note2,
+                    'note_module_3' => $note3,
+                ];
             }
-    } else {
-        // Log a message or handle the case where the file does not exist
-        Log::warning('Le fichier master_rsi2020.txt n\'existe pas.');
+        }
     }
-
-    return view('pages.user.listFichier', compact('contenu'));
-}
-
-
+        return view('pages.user.listFichier', ['contenu' => $contenu]);
+    }
 
 public function afficher()
 {
@@ -96,7 +82,7 @@ public function afficher()
             }
         }
     } else {
-        $contenu = "Fichier non trouvé.";
+        $contenu = [];
     }
 
     return view('pages.user.listFichier', ['contenu' => $contenu]);
@@ -133,10 +119,66 @@ public function supprimer($index)
         unset($lignes[$index]);
         Storage::put('master_rsi2020.txt', implode("\n", $lignes));
     }
-
+    
     return redirect()->route('afficher');
 }
 
+public function afficherCarte()
+{
+    $contenu = [];
+
+    if (Storage::exists('master_rsi2020.txt')) {
+        $contenuFichier = Storage::get('master_rsi2020.txt');
+        $lignes = explode("\n", trim($contenuFichier));
+
+        foreach ($lignes as $ligne) {
+            if (!empty($ligne)) {
+                list($nom, $prenom, $cne, $note1, $note2, $note3, $latitude, $longitude) = sscanf($ligne, "Nom: %[^,], Prenom: %[^,], CNE: %[^,], Note1: %d, Note2: %d, Note3: %d, Latitude: %f, Longitude: %f");
+                $contenu[] = [
+                    'nom' => $nom,
+                    'prenom' => $prenom,
+                    'cne' => $cne,
+                    'note_module_1' => $note1,
+                    'note_module_2' => $note2,
+                    'note_module_3' => $note3,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                ];
+            }
+        }
+    }
+
+    return view('projects.geo', ['contenu' => $contenu]);
+}
+
+public function showChart()
+    {
+        // Récupérer les données des étudiants depuis la base de données
+        $contenu = [];
+
+    if (Storage::exists('master_rsi2020.txt')) {
+        $contenuFichier = Storage::get('master_rsi2020.txt');
+        $lignes = explode("\n", trim($contenuFichier));
+
+        foreach ($lignes as $ligne) {
+            if (!empty($ligne)) {
+                list($nom, $prenom, $cne, $note1, $note2, $note3, $latitude, $longitude) = sscanf($ligne, "Nom: %[^,], Prenom: %[^,], CNE: %[^,], Note1: %d, Note2: %d, Note3: %d, Latitude: %f, Longitude: %f");
+                $contenu[] = [
+                    'nom' => $nom,
+                    'prenom' => $prenom,
+                    'cne' => $cne,
+                    'note_module_1' => $note1,
+                    'note_module_2' => $note2,
+                    'note_module_3' => $note3,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                ];
+            }
+        }
+    }
+
+    return view('projects.chartjs', ['contenu' => $contenu]);
+    }
 
 }
 

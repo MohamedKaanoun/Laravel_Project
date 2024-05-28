@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BotManController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FichierController;
 use App\Http\Controllers\ImageController;
@@ -27,7 +28,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/myProjects', [DashboardController::class, 'myProjects']);
     Route::view('/projects/matrice', 'projects.matrices')->name('matrice');
     Route::post('/projects/matrice', [ProjectController::class, 'matrice']);
+
+
     Route::view('/projects/geo', 'projects.geo')->name('geo');
+    Route::get('/projects/geo', [FichierController::class, 'afficherCarte'])->name('afficherCarte');
+
+
+    Route::get('/diagramme', [FichierController::class, 'showChart'])->name('showChart');
+
+    Route::match(['get', 'post'], '/botman', 'App\Http\Controllers\BotManController@handle');
+
+    Route::get('/botman', [BotManController::class, 'index'])->name('chatBot');
+    Route::post('/botman', [BotManController::class, 'handle']);
+
     Route::post('/projects/geo', [ProjectController::class, 'geo']);
     Route::view('/projects/insertFichier', 'projects.insertFichier')->name('insertFichier');
     
@@ -39,13 +52,7 @@ Route::middleware('auth')->group(function () {
     
     Route::post('/projects/insertFichier', [FichierController::class, 'insertFichier']);
 
-    Route::get('/geo', [FichierController::class, 'showMap'])->name('geo.show');
-
-
-    // web.php
-
     Route::get('/fichier/afficher', [FichierController::class, 'afficher'])->name('afficher');
-
 
     Route::post('/fichier/enregistrer', [FichierController::class, 'enregistrer'])->name('enregistrer');
 

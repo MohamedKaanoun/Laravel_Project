@@ -1,7 +1,6 @@
 <!-- resources/views/pages/user/listFichier.blade.php -->
 
 <x-layout>
-  <?php $contenu = [] ?>
   <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Contenu du Fichier</h2>
     <div>
